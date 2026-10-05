@@ -47,7 +47,7 @@ llama_model_params build_model_params(const geniex_ModelConfig& config, Device d
     static const bool mmap_matrix[3][3] = {
         {true, false, false},   // Linux
         {false, false, false},  // Windows
-        {false, false, false}   // Android
+        {true, true, true}   // Android
     };
 
     bool use_mmap = mmap_matrix[static_cast<int>(kHostPlatform)][static_cast<int>(device)];
