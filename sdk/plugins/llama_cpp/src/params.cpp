@@ -47,15 +47,15 @@ llama_model_params build_model_params(const geniex_ModelConfig& config, Device d
     static const bool mmap_matrix[3][3] = {
         {true, false, false},   // Linux
         {false, false, false},  // Windows
-        {true, true, true}   // Android
+        {true, true, true}      // Android
     };
 
     bool use_mmap = mmap_matrix[static_cast<int>(kHostPlatform)][static_cast<int>(device)];
 
     llama_model_params mpar = llama_model_default_params();
     // mpar.load_mode          = use_mmap ? LLAMA_LOAD_MODE_MMAP : LLAMA_LOAD_MODE_NONE;
-    mpar.load_mode          = LLAMA_LOAD_MODE_MMAP_MLOCK;
-    mpar.n_gpu_layers       = config.n_gpu_layers;
+    mpar.load_mode    = LLAMA_LOAD_MODE_MMAP_MLOCK;
+    mpar.n_gpu_layers = config.n_gpu_layers;
     GENIEX_LOG_INFO("[Optimise] model params: n_gpu_layers={}, load_mode={}",
         mpar.n_gpu_layers,
         llama_load_mode_name(mpar.load_mode));

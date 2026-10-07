@@ -482,19 +482,12 @@ int32_t LlamaLlm::generate(const geniex_LlmGenerateInput* input, geniex_LlmGener
     profiler.update_generated_tokens(generated_tokens.size());
 
     const auto total_request_ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(
-            request_end - request_start)
-            .count();
+        std::chrono::duration_cast<std::chrono::milliseconds>(request_end - request_start).count();
 
     const auto prompt_time_ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(
-            prompt_end - request_start)
-            .count();
+        std::chrono::duration_cast<std::chrono::milliseconds>(prompt_end - request_start).count();
 
-    const auto decode_time_ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(
-            request_end - prompt_end)
-            .count();
+    const auto decode_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(request_end - prompt_end).count();
 
     GENIEX_LOG_INFO(
         "[GENIEX_TIMING] total_ms={}, prompt_ms={}, decode_ms={}, "
