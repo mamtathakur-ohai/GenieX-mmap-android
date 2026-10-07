@@ -4,6 +4,7 @@
 #include "llm.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -235,6 +236,8 @@ int32_t LlamaLlm::apply_chat_template(
 }
 
 int32_t LlamaLlm::generate(const geniex_LlmGenerateInput* input, geniex_LlmGenerateOutput* output) {
+    const auto request_start = std::chrono::steady_clock::now();
+
     // Validate input
     if (!input) return GENIEX_ERROR_COMMON_INVALID_INPUT;
 
@@ -396,6 +399,9 @@ int32_t LlamaLlm::generate(const geniex_LlmGenerateInput* input, geniex_LlmGener
     }
 
     profiler.prompt_end();
+
+    const auto prompt_end = std::chrono::steady_clock::now();
+
     profiler.update_prompt_tokens(prompt_len - this->n_past_global);
     profiler.decode_start();
 
@@ -470,7 +476,34 @@ int32_t LlamaLlm::generate(const geniex_LlmGenerateInput* input, geniex_LlmGener
         profiler.set_stop_reason(common::StopReason::GENIEX_STOP_REASON_LENGTH);
     }
     profiler.decode_end();
+
+    const auto request_end = std::chrono::steady_clock::now();
+
     profiler.update_generated_tokens(generated_tokens.size());
+
+    const auto total_request_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            request_end - request_start)
+            .count();
+
+    const auto prompt_time_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            prompt_end - request_start)
+            .count();
+
+    const auto decode_time_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            request_end - prompt_end)
+            .count();
+
+    GENIEX_LOG_INFO(
+        "[GENIEX_TIMING] total_ms={}, prompt_ms={}, decode_ms={}, "
+        "prompt_tokens={}, generated_tokens={}",
+        total_request_ms,
+        prompt_time_ms,
+        decode_time_ms,
+        prompt_len,
+        generated_tokens.size());
     profiler.to_profile_data(output->profile_data);
     output->full_text = strdup(full_text.str().c_str());
 
