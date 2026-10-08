@@ -427,6 +427,7 @@ geniex_LlmCreateInput extract_llm_create_input(JNIEnv* env, jobject inputObj) {
     // === compute_unit ===
     std::string raw_dev;
     fid = env->GetFieldID(cls, "compute_unit", "Ljava/lang/String;");
+    LOGi("[JNI] [extract] compute_unit fid = %p, n_gpu_layers = %d (from raw='%s')", (void*)fid, out.config.n_gpu_layers, raw_dev.c_str());
     if (fid) {
         jstr = (jstring)env->GetObjectField(inputObj, fid);
         if (jstr) {
@@ -435,6 +436,7 @@ geniex_LlmCreateInput extract_llm_create_input(JNIEnv* env, jobject inputObj) {
         }
     }
     {
+        LOGi("[JNI] [extract] resolving compute_unit = %s", raw_dev.c_str());
         ResolvedDevice r        = resolve_device(out.plugin_id, nullptr, raw_dev, out.config.n_gpu_layers);
         out.device_id           = r.device_id.empty() ? nullptr : hold_c_str(r.device_id);
         out.config.n_gpu_layers = r.ngl;
