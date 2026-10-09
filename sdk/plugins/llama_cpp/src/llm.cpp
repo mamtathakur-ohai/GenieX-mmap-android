@@ -79,7 +79,9 @@ int32_t LlamaLlm::create(const geniex_LlmCreateInput* input) {
 
     // Resolve the compute-unit alias to a devices[] list for llama.cpp; must
     // outlive mpar (mpar.devices points into selection's buffer).
+    GENIEX_LOG_INFO("Llm cpp before  resolve_devices plugin_id={}, device_id={}", input->plugin_id, input->device_id);
     auto selection = resolve_devices(input->device_id);
+    GENIEX_LOG_INFO("Llm cpp After  resolve_devices plugin_id={}, device_id={}", input->plugin_id, input->device_id);
     if (!selection) {
         return GENIEX_ERROR_COMMON_INVALID_INPUT;
     }
@@ -760,8 +762,10 @@ int32_t LlamaLlm::setup_speculative(
             return GENIEX_ERROR_COMMON_INVALID_INPUT;
         }
 
-        llama_model_params dmpar     = build_model_params(config, device);
-        auto               selection = resolve_devices(device_id);
+        llama_model_params dmpar = build_model_params(config, device);
+        GENIEX_LOG_INFO("Llm cpp :: Setup_speculative before  resolve_devices  device_id={}", device_id);
+        auto selection = resolve_devices(device_id);
+        GENIEX_LOG_INFO("Llm cpp :: Setup_speculative After  resolve_devices  device_id={}", device_id);
         if (selection && !selection->empty()) {
             dmpar.devices = selection->data();
         }
