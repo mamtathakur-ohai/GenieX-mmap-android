@@ -54,9 +54,10 @@ ResolvedDevice resolve_device(
     in.model_name  = model_name;
     in.mode        = raw.empty() ? nullptr : raw.c_str();
     in.ngl_default = ngl_default;
-
+    LOGi("[JNI] resolve_device: %s", in);
     geniex_ResolveDeviceOutput out{};
     int32_t                    rc = geniex_resolve_device(&in, &out);
+    LOGi("[JNI] out_device: %s", out.device_id ? out.device_id : "(null)");
     if (rc != GENIEX_SUCCESS) {
         LOGe("[JNI] geniex_resolve_device failed (rc=%d), falling back to empty device", rc);
         return r;
@@ -427,7 +428,10 @@ geniex_LlmCreateInput extract_llm_create_input(JNIEnv* env, jobject inputObj) {
     // === compute_unit ===
     std::string raw_dev;
     fid = env->GetFieldID(cls, "compute_unit", "Ljava/lang/String;");
-    LOGi("[JNI] [extract] compute_unit fid = %p, n_gpu_layers = %d (from raw='%s')", (void*)fid, out.config.n_gpu_layers, raw_dev.c_str());
+    LOGi("[JNI] [extract] compute_unit fid = %p, n_gpu_layers = %d (from raw='%s')",
+        (void*)fid,
+        out.config.n_gpu_layers,
+        raw_dev.c_str());
     if (fid) {
         jstr = (jstring)env->GetObjectField(inputObj, fid);
         if (jstr) {
